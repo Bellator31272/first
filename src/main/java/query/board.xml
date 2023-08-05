@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mvc.board.dao.BoardMapper">
+	
+	<!-- 게시물 기본 조회 -->
+<!-- 	<select id="boardList" resultType="board"> -->
+<!-- 		/* Board - boardList */ -->
+<!-- 		SELECT num, author, title, readcnt,  -->
+<!-- 			   to_char(writeday, 'YYYY-MM-DD') writeday,  -->
+<!-- 			   repRoot, repStep, repIndent  -->
+<!-- 		FROM board  -->
+<!-- 		ORDER BY repRoot DESC, repStep ASC -->
+<!-- 	</select>  -->
+
+	<!--  검색 조회 -->
+	<select id="boardList" parameterType="board" resultType="board">
+		/* Board - boardList */
+		SELECT num, author, title, readcnt, 
+			   to_char(writeday, 'YYYY-MM-DD') writeday, 
+			   repRoot, repStep, repIndent 
+		FROM board 
+		<where>
+			<if test="search=='title'">
+				<![CDATA[ title like '%'||#{keyword}||'%']]>
+			</if>
+			<if test="search=='author'">
+				<![CDATA[ title like '%'||#{keyword}||'%']]>
+			</if>
+			<if test="search=='content'">
+				<![CDATA[ title like '%'||#{keyword}||'%']]>
+			</if>
+		</where>
+		ORDER BY repRoot DESC, repStep ASC
+	</select> 
+	
+	
+	<!-- 게시물  등록 -->
+	<insert id="boardInsert" parameterType="board">
+		/* Board - boardInsert */
+		<selectKey keyProperty="num" resultType="int" order="BEFORE">
+			select board_seq.nextval from dual
+		</selectKey>
+		
+		INSERT INTO board(num, title, author, content, repRoot, repStep, repIndent, passwd) 
+		VALUES(#{num}, #{title}, #{author}, #{content}, #{num}, 0, 0, #{passwd})
+	 </insert>
+	 
+	 <update id="readcntUpdate" parameterType="int">
+	 	update board set readcnt = readcnt +1 where num = #{num}
+	 </update>
+	 
+	 <delete id="boardDelete" parameterType="board">
+	 	delete from board where num= #{num}
+	 </delete>
+	 
+	 <select id="updateForm" resultType="board">
+	 	SELECT num, author, title,  content, passwd
+		FROM board WHERE num = #{num}
+	 </select>
+	 
+	 <update id="boardUpdate" parameterType="board">
+	 	update board set 
+	 	title=#{title}, 
+	 	content=#{content} 
+	 	<if test='passwd != null and passwd !=""'>
+	 		, passwd=#{passwd} 
+	 	</if>
+	 	where num=#{num}
+	 </update>
+	 
+	 <select id="boardDetail" resultType="board">
+	 	SELECT num, author, title,  content, passwd, 
+		TO_CHAR(writeday,'YYYY-MM-DD HH24:MI:SS') writeday, 
+		readcnt, repRoot, repIndent, repStep 
+		FROM board WHERE num = #{num}
+	 </select>
+	 
+	 <select id="boardPassChk" parameterType="board" resultType="int">
+	 	select nvl((select 1 from board where num= #{num}
+	 	 and passwd = #{passwd}), 0) as result from dual
+	 </select>
+	 
+</mapper>
+
+

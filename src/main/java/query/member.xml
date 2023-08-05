@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mvc.member.dao.memberMapper">
+
+<insert id="insertMember" parameterType="member">
+	INSERT INTO member(id, passwd, name, email, phone)
+	VALUES(#{id}, #{passwd}, #{name}, #{email}, #{phone})
+</insert>
+
+<select id="passChkMember" parameterType="member" resultType="int">
+	 	select nvl((select 1 from member where id= #{id}
+	 	 and passwd = #{passwd}), 0) as result from dual
+</select>
+
+<select id="idCheckMember" parameterType="member" resultType="int">
+		select nvl((select 1 from member where id= #{id}), 0) as result from dual
+</select>
+
+
+<select id="memberDetail" parameterType="member" resultType="member">
+	select id, name, email, phone, regdate from member where id=#{id}
+</select>
+
+<delete id="deleteMember" parameterType="member">
+	 	delete from member where id= #{id}
+</delete>
+
+<update id="updateMember" parameterType="member">
+	 	update member set 
+	 	name=#{name}, 
+	 	email=#{email},
+	 	phone=#{phone}
+	 	<if test='passwd != null and passwd !=""'>
+	 		, passwd=#{passwd} 
+	 	</if>
+	 	where id=#{id}
+	 </update>
+
+</mapper>
